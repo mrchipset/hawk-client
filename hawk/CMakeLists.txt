@@ -24,7 +24,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #    endif()
 #endif()
 include(Specifications.txt)
-find_package(Qt5 COMPONENTS Core Quick LinguistTools REQUIRED)
+find_package(Qt5 COMPONENTS Core Quick LinguistTools Network REQUIRED)
 
 set(TS_FILES hawk_en_US.ts)
 set(QRC_FILES
