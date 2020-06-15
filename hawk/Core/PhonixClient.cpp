@@ -2,15 +2,14 @@
 
 #include <QDebug>
 #include <QEventLoop>
-#include <QJsonObject>
-#include <QJsonDocument>
-#include <QJsonObject>
 #include <QHttpMultiPart>
 #include <QHttpPart>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QTimer>
+
+#include "JsonParser.h"
 
 PhonixClient::PhonixClient(const QString& serverURL, QObject *parent) : QObject(parent),
     m_serverURL(serverURL),
@@ -37,7 +36,15 @@ bool PhonixClient::getPicture(const QString& key, const QString& id, QByteArray&
     {
         byte = reply->readAll();
         timer.stop();
-        return true;
+        JsonParser parser(byte);
+        if (parser.parse())
+        {
+            return false;
+        }else
+        {
+            return true;
+        }
+        
     }
     else
     {
@@ -65,9 +72,25 @@ bool PhonixClient::getPictureList(int pageSize, int pageId, QJsonArray& array)
     if (timer.isActive())
     {
         QByteArray byte = reply->readAll();
-        QJsonDocument doc = QJsonDocument::fromRawData(byte.data(), byte.size());
         timer.stop();
-        return true;
+        ListResultParser parser(byte);
+        if (parser.parse())
+        {
+            if (parser.result())
+            {
+                if (parser.getArray("list", array))
+                {
+                    return true;
+                }
+                return false;
+            }
+            else
+            {
+                m_err = parser.errorMessage(); 
+            }
+            
+        }
+        return false;
     }
     else
     {
@@ -110,7 +133,14 @@ bool PhonixClient::postPicture(const QString& key, const QString& id, const QByt
     {
         QByteArray byte = reply->readAll();
         timer.stop();
-        return true;
+        JsonParser parser(byte);
+        if (parser.parse())
+        {
+            m_err = parser.errorMessage();
+            return parser.result();
+        }
+        m_err = "Invalid server message";
+        return false;
     }
     else
     {
@@ -153,7 +183,14 @@ bool PhonixClient::putPicture(const QString& key, const QString& id, const QByte
     {
         QByteArray byte = reply->readAll();
         timer.stop();
-        return true;
+        JsonParser parser(byte);
+        if (parser.parse())
+        {
+            m_err = parser.errorMessage();
+            return parser.result();
+        }
+        m_err = "Invalid server message";
+        return false;
     }
     else
     {
@@ -177,9 +214,16 @@ bool PhonixClient::delPicture(const QString& key, const QString& id)
     timer.start();    loop.exec();
     if (timer.isActive())
     {
+        QByteArray byte = reply->readAll();
         timer.stop();
-        //TODO add json parsing
-        return true;
+        JsonParser parser(byte);
+        if (parser.parse())
+        {
+            m_err = parser.errorMessage();
+            return parser.result();
+        }
+        m_err = "Invalid server message";
+        return false;
     }
     else
     {
@@ -187,4 +231,9 @@ bool PhonixClient::delPicture(const QString& key, const QString& id)
         return false;
     }
     return true;
+}
+
+QString PhonixClient::error() const
+{
+    return m_err;
 }

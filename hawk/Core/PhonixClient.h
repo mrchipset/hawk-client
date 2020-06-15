@@ -17,12 +17,14 @@ public:
     bool postPicture(const QString& key, const QString& id, const QByteArray& byte);
     bool putPicture(const QString& key, const QString& id, const QByteArray& byte);
     bool delPicture(const QString& key, const QString& id);
+    QString error() const;
 signals:
 
 private:
     const QString m_kBaseURL = "PictureItems/";
     QString m_serverURL;
     QNetworkAccessManager* m_manager;
+    QString m_err;
 };
 
 #endif // PHONIXCLIENT_H

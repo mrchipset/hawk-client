@@ -1,8 +1,8 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-
 #include <QFile>
 
+#include "Core/JsonParser.h"
 #include "Core/PhonixClient.h"
 
 int main(int argc, char *argv[])
@@ -18,6 +18,5 @@ int main(int argc, char *argv[])
             QCoreApplication::exit(-1);
     }, Qt::QueuedConnection);
     engine.load(url);
-
     return app.exec();
 }
