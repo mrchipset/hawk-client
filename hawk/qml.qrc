@@ -1,5 +1,11 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
+        <file>View/NavigtionBar.qml</file>
+        <file>View/NavigationButton.qml</file>
+        <file>View/UploadView.qml</file>
+        <file>View/GalleryView.qml</file>
+        <file>View/SetupView.qml</file>
+        <file>View/AboutView.qml</file>
     </qresource>
 </RCC>
