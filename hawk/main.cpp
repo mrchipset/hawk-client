@@ -1,7 +1,7 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QFile>
-
+#include <QQmlContext>
 #include "Core/JsonParser.h"
 #include "Core/PhonixClient.h"
 
@@ -11,6 +11,8 @@ int main(int argc, char *argv[])
 
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
+    PhonixClient client("http://phonix.mrchip.info/");
+    engine.rootContext()->setContextProperty("hawkClient", &client);
     engine.addImportPath(QStringLiteral("qrc:/"));
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,

@@ -9,8 +9,8 @@ Window {
     visible: true
     width: 640
     height: 480
-    title: qsTr("Hello World")
-
+    title: qsTr("Hawk")
+    property var widget: null
 
     NavigtionBar {
         id: navBar
@@ -23,10 +23,6 @@ Window {
         anchors.left: navBar.right
         anchors.right: parent.right
         height: parent.height
-        Text {
-            id: content
-            text: qsTr("1")
-        }
     }
 
 //    SwipeView {
@@ -48,7 +44,33 @@ Window {
 
     function onCurrentNavIndexChanged(index) {
         console.log(index)
-        content.text = index
+        var viewPath = ""
+        switch(index)
+        {
+        case 0: //upload
+            viewPath = "qrc:/View/UploadView.qml"
+            break
+        case 1: //gallery
+            viewPath = "qrc:/View/GalleryView.qml"
+            break
+        case 2: //setup
+            viewPath = "qrc:/View/SetupView.qml"
+            break
+        case 3: //about
+            viewPath = "qrc:/View/AboutView.qml"
+            break
+        }
+        if (viewPath !== "")
+        {
+            var component = Qt.createComponent(viewPath)
+            if (widget != null)
+            {
+                widget.destroy()
+            }
+            widget = component.createObject(container)
+        }
+
+
     }
 
     Component.onCompleted: {

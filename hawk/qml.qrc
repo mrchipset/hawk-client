@@ -7,5 +7,6 @@
         <file>View/GalleryView.qml</file>
         <file>View/SetupView.qml</file>
         <file>View/AboutView.qml</file>
+        <file>Resource/white.png</file>
     </qresource>
 </RCC>

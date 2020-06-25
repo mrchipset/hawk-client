@@ -2,6 +2,7 @@
 
 #include <QDebug>
 #include <QEventLoop>
+#include <QFile>
 #include <QHttpMultiPart>
 #include <QHttpPart>
 #include <QNetworkAccessManager>
@@ -24,6 +25,7 @@ bool PhonixClient::getPicture(const QString& key, const QString& id, QByteArray&
     QString requestURL = m_serverURL + m_kBaseURL + id;
     request.setUrl(QUrl(requestURL));
     request.setRawHeader("User-Agent", "Hawk-Client 1.0");
+    request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
     QNetworkReply * reply = m_manager->get(request);
     QEventLoop loop;
     QTimer timer;
@@ -60,6 +62,8 @@ bool PhonixClient::getPictureList(int pageSize, int pageId, QJsonArray& array)
             QString::number(pageSize) + "/" + QString::number(pageId);
     request.setUrl(QUrl(requestURL));
     request.setRawHeader("User-Agent", "Hawk-Client 1.0");
+    request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+
     QNetworkReply * reply = m_manager->get(request);
     QEventLoop loop;
     QTimer timer;
@@ -121,6 +125,7 @@ bool PhonixClient::postPicture(const QString& key, const QString& id, const QByt
     QString requestURL = m_serverURL + m_kBaseURL;
     request.setUrl(QUrl(requestURL));
     request.setRawHeader("User-Agent", "Hawk-Client 1.0");
+    request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
     QNetworkReply * reply = m_manager->post(request, form);
     form->setParent(reply);
     QEventLoop loop;
@@ -136,6 +141,7 @@ bool PhonixClient::postPicture(const QString& key, const QString& id, const QByt
         JsonParser parser(byte);
         if (parser.parse())
         {
+            qDebug() << byte;
             m_err = parser.errorMessage();
             return parser.result();
         }
@@ -147,6 +153,19 @@ bool PhonixClient::postPicture(const QString& key, const QString& id, const QByt
         reply->abort();
         return false;
     }
+}
+
+bool PhonixClient::postPicture(const QString &filePath)
+{
+    QUrl urlPath(filePath);
+    QFile file(urlPath.toLocalFile());
+    if (!file.open(QFile::ReadOnly))
+    {
+        return false;
+    }
+    bool b = postPicture("key", "id", file.readAll());
+    file.close();
+    return b;
 }
 
 bool PhonixClient::putPicture(const QString& key, const QString& id, const QByteArray& byte)
@@ -171,6 +190,8 @@ bool PhonixClient::putPicture(const QString& key, const QString& id, const QByte
     QString requestURL = m_serverURL + m_kBaseURL + key;
     request.setUrl(QUrl(requestURL));
     request.setRawHeader("User-Agent", "Hawk-Client 1.0");
+    request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+
     QNetworkReply * reply = m_manager->put(request, form);
     form->setParent(reply);
     QEventLoop loop;
@@ -205,6 +226,8 @@ bool PhonixClient::delPicture(const QString& key, const QString& id)
     QString requestURL = m_serverURL + m_kBaseURL + key;
     request.setUrl(QUrl(requestURL));
     request.setRawHeader("User-Agent", "Hawk-Client 1.0");
+    request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+
     QNetworkReply * reply = m_manager->deleteResource(request);
     QEventLoop loop;
     QTimer timer;
